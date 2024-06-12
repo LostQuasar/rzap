@@ -2,7 +2,6 @@
 //!
 //! A rust library for connecting to an openshock server
 
-
 pub mod data_type;
 
 use data_type::data_type::*;
@@ -105,7 +104,7 @@ mod tests {
         t.hash(&mut s);
         s.finish()
     }
-    
+
     #[tokio::test]
     async fn get_shockers_test() {
         dotenv().ok();
@@ -113,7 +112,10 @@ mod tests {
 
         let (client, api_url) = setup();
         let result = get_shockers(&client, api_url.as_str(), ShockerSource::Own);
-        assert_eq!(calculate_hash(&result.await.unwrap()[0].shockers[0].id), calculate_hash(&shocker_test_id));
+        assert_eq!(
+            calculate_hash(&result.await.unwrap()[0].shockers[0].id),
+            calculate_hash(&shocker_test_id)
+        );
     }
 
     #[tokio::test]
@@ -128,7 +130,10 @@ mod tests {
             shocker_test_id,
             ControlType::Sound,
         );
-        assert_eq!(&result.await.unwrap(), &"Successfully sent control messages");
+        assert_eq!(
+            &result.await.unwrap(),
+            &"Successfully sent control messages"
+        );
     }
 
     #[tokio::test]
@@ -138,6 +143,9 @@ mod tests {
 
         let (client, api_url) = setup();
         let result = get_user_info(&client, api_url.as_str());
-        assert_eq!(calculate_hash(&result.await.unwrap().id), calculate_hash(&user_test_id));
+        assert_eq!(
+            calculate_hash(&result.await.unwrap().id),
+            calculate_hash(&user_test_id)
+        );
     }
 }
