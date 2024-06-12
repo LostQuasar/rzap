@@ -77,6 +77,7 @@ mod tests {
     fn setup() -> (Client, String) {
         dotenv().ok();
         let openshock_token = dotenv::var("OPENSHOCK_TOKEN").expect("missing OPENSHOCK_TOKEN");
+        assert_ne!(openshock_token, "");
         let api_url = "https://api.shocklink.net";
 
         let mut headers = header::HeaderMap::new();
@@ -109,7 +110,7 @@ mod tests {
     async fn get_shockers_test() {
         dotenv().ok();
         let shocker_test_id = dotenv::var("SHOCKER_TEST_ID").expect("missing SHOCKER_TEST_ID");
-
+        assert_ne!(shocker_test_id, "");
         let (client, api_url) = setup();
         let result = get_shockers(&client, api_url.as_str(), ShockerSource::Own);
         assert_eq!(
@@ -122,6 +123,7 @@ mod tests {
     async fn post_control_test() {
         dotenv().ok();
         let shocker_test_id = dotenv::var("SHOCKER_TEST_ID").expect("missing SHOCKER_TEST_ID");
+        assert_ne!(shocker_test_id, "");
 
         let (client, api_url) = setup();
         let result = post_control(
@@ -140,6 +142,7 @@ mod tests {
     async fn get_user_info_test() {
         dotenv().ok();
         let user_test_id = dotenv::var("USER_TEST_ID").expect("missing USER_TEST_ID");
+        assert_ne!(user_test_id, "");
 
         let (client, api_url) = setup();
         let result = get_user_info(&client, api_url.as_str());
