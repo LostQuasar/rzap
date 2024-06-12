@@ -128,7 +128,7 @@ mod tests {
             shocker_test_id,
             ControlType::Sound,
         );
-        assert_eq!(calculate_hash(&result.await.unwrap()), calculate_hash(&"Successfully sent control messages"));
+        assert_eq!(&result.await.unwrap(), &"Successfully sent control messages");
     }
 
     #[tokio::test]

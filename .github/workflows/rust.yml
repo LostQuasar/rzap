@@ -21,6 +21,6 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
       env:
-        OPENSHOCK_TOKEN: ${{ env.OPENSHOCK_TOKEN }}
-        SHOCKER_TEST_ID: ${{ env.SHOCKER_TEST_ID }}
-        USER_TEST_ID: ${{ env.USER_TEST_ID }}
+        OPENSHOCK_TOKEN: ${{ secrets.OPENSHOCK_TOKEN }}
+        SHOCKER_TEST_ID: ${{ secrets.SHOCKER_TEST_ID }}
+        USER_TEST_ID: ${{ secrets.USER_TEST_ID }}
