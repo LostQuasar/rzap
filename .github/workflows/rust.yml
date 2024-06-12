@@ -20,3 +20,7 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+      env:
+        OPENSHOCK_TOKEN: ${{ secrets.OPENSHOCK_TOKEN }}
+        SHOCKER_TEST_ID: ${{ secrets.SHOCKER_TEST_ID }}
+        USER_TEST_ID: ${{ secrets.USER_TEST_ID }}
