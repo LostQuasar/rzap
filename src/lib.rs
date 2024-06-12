@@ -69,6 +69,8 @@ pub enum ShockerSource {
 
 #[cfg(test)]
 mod tests {
+    use std::hash::{DefaultHasher, Hash, Hasher};
+
     use super::*;
     use dotenv::dotenv;
     use reqwest::header;
@@ -98,6 +100,12 @@ mod tests {
         (client, api_url.to_string())
     }
 
+    fn calculate_hash<T: Hash>(t: &T) -> u64 {
+        let mut s = DefaultHasher::new();
+        t.hash(&mut s);
+        s.finish()
+    }
+    
     #[tokio::test]
     async fn get_shockers_test() {
         dotenv().ok();
@@ -105,7 +113,7 @@ mod tests {
 
         let (client, api_url) = setup();
         let result = get_shockers(&client, api_url.as_str(), ShockerSource::Own);
-        assert_eq!(result.await.unwrap()[0].shockers[0].id, shocker_test_id);
+        assert_eq!(calculate_hash(&result.await.unwrap()[0].shockers[0].id), calculate_hash(&shocker_test_id));
     }
 
     #[tokio::test]
@@ -120,7 +128,7 @@ mod tests {
             shocker_test_id,
             ControlType::Sound,
         );
-        assert_eq!(result.await.unwrap(), "Successfully sent control messages");
+        assert_eq!(calculate_hash(&result.await.unwrap()), calculate_hash(&"Successfully sent control messages"));
     }
 
     #[tokio::test]
@@ -130,6 +138,6 @@ mod tests {
 
         let (client, api_url) = setup();
         let result = get_user_info(&client, api_url.as_str());
-        assert_eq!(result.await.unwrap().id, user_test_id);
+        assert_eq!(calculate_hash(&result.await.unwrap().id), calculate_hash(&user_test_id));
     }
 }
