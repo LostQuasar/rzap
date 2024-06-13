@@ -1,6 +1,4 @@
-pub mod data_type;
-
-use data_type::*;
+use crate::data_type::*;
 use reqwest::header;
 use std::{error::Error, fmt::Debug};
 use strum_macros::EnumString;

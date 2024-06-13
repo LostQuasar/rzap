@@ -2,6 +2,5 @@
 //!
 //! A rust library for connecting to an openshock server
 
-pub mod rzap;
-#[cfg(test)]
-mod tests;
+pub mod api;
+pub mod data_type;

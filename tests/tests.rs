@@ -1,10 +1,7 @@
 use dotenv::dotenv;
+use rzap::{api::{OpenShockAPI, ShockerSource}, data_type::ControlType};
 use std::hash::{DefaultHasher, Hash, Hasher};
 
-use crate::{
-    rzap::data_type::ControlType,
-    rzap::{OpenShockAPI, ShockerSource},
-};
 
 fn calculate_hash<T: Hash>(t: &T) -> u64 {
     let mut s = DefaultHasher::new();
