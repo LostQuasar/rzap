@@ -3,19 +3,22 @@ use reqwest::header;
 use std::{error::Error, fmt::Debug};
 use strum_macros::EnumString;
 
+/// All methods contain an `Option<String>` to provide an alternate api key to use if it differs from the default
 pub struct OpenShockAPI {
     client: reqwest::Client,
     base_url: String,
     default_key: String,
 }
 
+/// Which list of shockers to return
 #[derive(EnumString, Debug)]
-pub enum ShockerSource {
+pub enum ListShockerSource {
     Own,
     Shared,
 }
 
 impl OpenShockAPI {
+    /// Create a new instance of the api interface with a default key and the base_url, because OpenShock can be self hosted `base_url` can be any url without the leading `/` if `None` is provided the default of <https://api.shocklink.net> is used.
     pub fn new(base_url: Option<String>, default_key: String) -> Self {
         let mut headers = header::HeaderMap::new();
         headers.insert(
@@ -38,6 +41,7 @@ impl OpenShockAPI {
         }
     }
 
+    /// Gets user info from the provided API key, the default key from the instance is used if `None` is provided
     pub async fn get_user_info(
         &self,
         api_key: Option<String>,
@@ -56,9 +60,10 @@ impl OpenShockAPI {
         Ok(self_base_response.data.unwrap())
     }
 
+    /// Gets a list of shockers that the user has access to from either their own shockers or ones shared with them
     pub async fn get_shockers(
         &self,
-        source: ShockerSource,
+        source: ListShockerSource,
         api_key: Option<String>,
     ) -> Result<Vec<ListShockersResponse>, Box<dyn Error>> {
         let resp = self
@@ -75,18 +80,35 @@ impl OpenShockAPI {
         Ok(list_shockers_response.data.unwrap())
     }
 
+    ///Sends a control request to the api and returns the response message which should be "Successfully sent control messages" exactly if it was successful
     pub async fn post_control(
         &self,
         id: String,
         control_type: ControlType,
+        intensity: u8,
+        duration: u16,
         api_key: Option<String>,
     ) -> Result<String, Box<dyn Error>> {
+        match intensity {
+            1..=100 => {}
+            _ => {
+                panic!("Intensity is outside of bounds");
+            }
+        }
+
+        match duration {
+            300..=30000 => {}
+            _ => {
+                panic!("Duration is outside of bounds");
+            }
+        }
+
         let control_request = serde_json::to_string(&ControlRequest {
             shocks: vec![Shock {
                 id: id,
                 control_type: control_type,
-                intensity: 1,
-                duration: 300,
+                intensity: intensity,
+                duration: duration,
                 exclusive: true,
             }],
             custom_name: "rusty".to_string(),

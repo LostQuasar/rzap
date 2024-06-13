@@ -2,6 +2,7 @@
 use serde::{Deserialize, Serialize};
 use strum_macros::EnumString;
 
+/// Response provided when a request is sent to retrieve the list of available shockers
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ListShockersResponse {
@@ -11,6 +12,7 @@ pub struct ListShockersResponse {
     pub created_on: String,
 }
 
+/// Contains data about a shocker such as it's ID and model
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ShockerResponse {
@@ -29,6 +31,7 @@ pub enum ShockerModel {
     Petrainer998DR,
 }
 
+/// The base response used for most of the OpenShock API endpoints 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BaseResponse<T> {
     pub message: Option<String>,
@@ -42,6 +45,8 @@ pub enum ControlType {
     Vibrate,
     Sound,
 }
+
+/// The format of which outgoing control requests should be formatted as can send multiple shocks at the same time as long as they use the same API key
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ControlRequest {
@@ -49,13 +54,16 @@ pub struct ControlRequest {
     pub custom_name: String,
 }
 
+/// Describes how the shock should to send to the device 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Shock {
     pub id: String,
     #[serde(rename = "type")]
     pub control_type: ControlType,
+    /// minimum of 1 and maximum of 100, measured in percentage
     pub intensity: u8,
+    /// minimum of 300 and maximum of 30000, measured in ms
     pub duration: u16,
     pub exclusive: bool,
 }

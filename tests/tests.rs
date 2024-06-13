@@ -1,5 +1,5 @@
 use dotenv::dotenv;
-use rzap::{api::{OpenShockAPI, ShockerSource}, data_type::ControlType};
+use rzap::{api::{OpenShockAPI, ListShockerSource}, data_type::ControlType};
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 
@@ -19,7 +19,7 @@ async fn get_shockers_test() {
 
     let openshock_api = OpenShockAPI::new(None, openshock_token);
 
-    let result = openshock_api.get_shockers(ShockerSource::Own, None).await;
+    let result = openshock_api.get_shockers(ListShockerSource::Own, None).await;
     assert_eq!(
         calculate_hash(&result.unwrap()[0].shockers[0].id),
         calculate_hash(&shocker_test_id)
@@ -36,7 +36,7 @@ async fn post_control_test() {
 
     let openshock_api = OpenShockAPI::new(None, openshock_token);
     let result = openshock_api
-        .post_control(shocker_test_id, ControlType::Sound, None)
+        .post_control(shocker_test_id, ControlType::Sound, 101, 1, None)
         .await;
     assert_eq!(&result.unwrap(), &"Successfully sent control messages");
 }
