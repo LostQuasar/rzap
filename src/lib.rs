@@ -135,9 +135,9 @@ mod tests {
 
         let openshock_api = OpenShockAPI::new(None, openshock_token);
 
-        let result = openshock_api.get_shockers(ShockerSource::Own, None);
+        let result = openshock_api.get_shockers(ShockerSource::Own, None).await;
         assert_eq!(
-            calculate_hash(&result.await.unwrap()[0].shockers[0].id),
+            calculate_hash(&result.unwrap()[0].shockers[0].id),
             calculate_hash(&shocker_test_id)
         );
     }
@@ -151,9 +151,9 @@ mod tests {
         assert_ne!(shocker_test_id, "");
 
         let openshock_api = OpenShockAPI::new(None, openshock_token);
-        let result = openshock_api.post_control(shocker_test_id, ControlType::Sound, None);
+        let result = openshock_api.post_control(shocker_test_id, ControlType::Sound, None).await;
         assert_eq!(
-            &result.await.unwrap(),
+            &result.unwrap(),
             &"Successfully sent control messages"
         );
     }
@@ -167,9 +167,9 @@ mod tests {
         assert_ne!(openshock_token, "");
 
         let openshock_api = OpenShockAPI::new(None, openshock_token);
-        let result = openshock_api.get_user_info(None);
+        let result = openshock_api.get_user_info(None).await;
         assert_eq!(
-            calculate_hash(&result.await.unwrap().id),
+            calculate_hash(&result.unwrap().id),
             calculate_hash(&user_test_id)
         );
     }
