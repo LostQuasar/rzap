@@ -36,7 +36,7 @@ async fn post_control_test() {
 
     let openshock_api = OpenShockAPI::new(None, openshock_token);
     let result = openshock_api
-        .post_control(shocker_test_id, ControlType::Sound, 101, 1, None)
+        .post_control(shocker_test_id, ControlType::Sound, 1, 300, None)
         .await;
     assert_eq!(&result.unwrap(), &"Successfully sent control messages");
 }
