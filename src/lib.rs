@@ -1,8 +1,8 @@
 //! # rzap 
 //! 
-//! This library provides an interface to controll shocker devices via [OpenShock](http://openshock.org)'s API
+//! This library provides an interface to control shocker devices via [OpenShock](http://openshock.org)'s API
 //! 
-//! **NOTE:** This is an un-official API iterface created by someone who has just started learning rust, no guarantees are made and contributions are greatly welcomed
+//! **NOTE:** This is an un-official API interface created by someone who has just started learning rust, no guarantees are made and contributions are greatly welcomed
 //! 
 //! ```toml
 //! [dependencies]
