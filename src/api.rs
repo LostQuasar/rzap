@@ -33,7 +33,7 @@ impl OpenShockAPI {
             .default_headers(headers)
             .build()
             .unwrap();
-        let base_url = base_url.unwrap_or("https://api.shocklink.net".to_string());
+        let base_url = base_url.unwrap_or("https://api.openshock.app".to_string());
         OpenShockAPI {
             client,
             base_url,
