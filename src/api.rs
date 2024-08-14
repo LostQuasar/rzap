@@ -1,6 +1,6 @@
-use crate::data_type::*;
+use crate::{data_type::*, error::Error};
 use reqwest::header;
-use std::{error::Error, fmt::Debug};
+use std::fmt::Debug;
 use strum_macros::EnumString;
 
 /// All methods contain an `Option<String>` to provide an alternate api key to use if it differs from the default
@@ -42,10 +42,7 @@ impl OpenShockAPI {
     }
 
     /// Gets user info from the provided API key, the default key from the instance is used if `None` is provided
-    pub async fn get_user_info(
-        &self,
-        api_key: Option<String>,
-    ) -> Result<SelfResponse, Box<dyn Error>> {
+    pub async fn get_user_info(&self, api_key: Option<String>) -> Result<SelfResponse, Error> {
         let resp = self
             .client
             .get(format!("{}/1/users/self", self.base_url))
@@ -65,7 +62,7 @@ impl OpenShockAPI {
         &self,
         source: ListShockerSource,
         api_key: Option<String>,
-    ) -> Result<Vec<ListShockersResponse>, Box<dyn Error>> {
+    ) -> Result<Vec<ListShockersResponse>, Error> {
         let resp = self
             .client
             .get(format!("{}/1/shockers/{:?}", self.base_url, source))
@@ -88,7 +85,7 @@ impl OpenShockAPI {
         intensity: u8,
         duration: u16,
         api_key: Option<String>,
-    ) -> Result<String, Box<dyn Error>> {
+    ) -> Result<String, Error> {
         match intensity {
             1..=100 => {}
             _ => {
