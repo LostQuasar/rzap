@@ -8,6 +8,8 @@ use strum_macros::EnumString;
 pub struct OpenShockAPIBuilder {
     base_url: Option<String>,
     default_key: Option<String>,
+    app_name: Option<String>,
+    app_version: Option<String>,
 }
 
 impl OpenShockAPIBuilder {
@@ -33,6 +35,17 @@ impl OpenShockAPIBuilder {
         self
     }
 
+    /// set the name and optionally version of the app using this crate
+    ///
+    /// this is optional. if provided, the information will be added to the user agent string for
+    /// all OpenShock API requests and also sent in [`OpenShockAPI::post_control`] so the app name
+    /// shows up in the OpenShock log.
+    pub fn with_app(mut self, app_name: String, app_version: Option<String>) -> Self {
+        self.app_name = Some(app_name);
+        self.app_version = app_version;
+        self
+    }
+
     /// check parameters and build an instance of [`OpenShockAPI`]
     pub fn build(self) -> Result<OpenShockAPI, Error> {
         let base_url = self
@@ -40,6 +53,19 @@ impl OpenShockAPIBuilder {
             .unwrap_or("https://api.openshock.app".to_string());
         let Some(default_key) = self.default_key else {
             return Err(Error::MissingApiToken);
+        };
+
+        let mut user_agent = format!("rzap/{}", env!("CARGO_PKG_VERSION"));
+        // maybe add platform information as well?
+        let app_name = if let Some(app_name) = self.app_name {
+            if let Some(app_version) = self.app_version {
+                user_agent += &format!(" ({} {})", app_name, app_version);
+            } else {
+                user_agent += &format!(" ({})", app_name);
+            }
+            app_name
+        } else {
+            "rzap".to_string()
         };
 
         let mut headers = header::HeaderMap::new();
@@ -51,6 +77,10 @@ impl OpenShockAPIBuilder {
             "accept",
             header::HeaderValue::from_static("application/json"),
         );
+        headers.insert(
+            header::USER_AGENT,
+            header::HeaderValue::from_str(&user_agent).map_err(|e| Error::InvalidHeaderValue(e))?,
+        );
         let client = reqwest::Client::builder()
             .default_headers(headers)
             .build()
@@ -60,6 +90,7 @@ impl OpenShockAPIBuilder {
             client,
             base_url,
             default_key,
+            app_name,
         })
     }
 }
@@ -69,6 +100,7 @@ pub struct OpenShockAPI {
     client: reqwest::Client,
     base_url: String,
     default_key: String,
+    app_name: String,
 }
 
 /// Which list of shockers to return
@@ -162,7 +194,7 @@ impl OpenShockAPI {
                 duration: duration,
                 exclusive: true,
             }],
-            custom_name: "rusty".to_string(),
+            custom_name: self.app_name.clone(),
         })?;
 
         let resp = self
