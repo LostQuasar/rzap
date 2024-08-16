@@ -3,6 +3,67 @@ use reqwest::header;
 use std::fmt::Debug;
 use strum_macros::EnumString;
 
+/// Builder for [`OpenShockAPI`]
+#[derive(Default)]
+pub struct OpenShockAPIBuilder {
+    base_url: Option<String>,
+    default_key: Option<String>,
+}
+
+impl OpenShockAPIBuilder {
+    /// Create a new builder
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// set the base URL to use
+    ///
+    /// this is optional and can be provided to use a self-hosted instance of the OpenShock API. if
+    /// left unset, the default (`https://api.openshock.app`) will be used.
+    pub fn with_base_url(mut self, base_url: String) -> Self {
+        self.base_url = Some(base_url);
+        self
+    }
+
+    /// set the API token to use
+    ///
+    /// this must be provided
+    pub fn with_default_api_token(mut self, default_api_token: String) -> Self {
+        self.default_key = Some(default_api_token);
+        self
+    }
+
+    /// check parameters and build an instance of [`OpenShockAPI`]
+    pub fn build(self) -> Result<OpenShockAPI, Error> {
+        let base_url = self
+            .base_url
+            .unwrap_or("https://api.openshock.app".to_string());
+        let Some(default_key) = self.default_key else {
+            return Err(Error::MissingApiToken);
+        };
+
+        let mut headers = header::HeaderMap::new();
+        headers.insert(
+            "Content-type",
+            header::HeaderValue::from_static("application/json"),
+        );
+        headers.insert(
+            "accept",
+            header::HeaderValue::from_static("application/json"),
+        );
+        let client = reqwest::Client::builder()
+            .default_headers(headers)
+            .build()
+            .unwrap();
+
+        Ok(OpenShockAPI {
+            client,
+            base_url,
+            default_key,
+        })
+    }
+}
+
 /// All methods contain an `Option<String>` to provide an alternate api key to use if it differs from the default
 pub struct OpenShockAPI {
     client: reqwest::Client,
@@ -18,27 +79,20 @@ pub enum ListShockerSource {
 }
 
 impl OpenShockAPI {
+    /// Return a builder for the api interface
+    ///
+    /// this is the same as [`OpenShockAPIBuilder::new`]
+    pub fn builder() -> OpenShockAPIBuilder {
+        OpenShockAPIBuilder::new()
+    }
+
     /// Create a new instance of the api interface with a default key and the base_url, because OpenShock can be self hosted `base_url` can be any url without the leading `/` if `None` is provided the default of <https://api.shocklink.net> is used.
     pub fn new(base_url: Option<String>, default_key: String) -> Self {
-        let mut headers = header::HeaderMap::new();
-        headers.insert(
-            "Content-type",
-            header::HeaderValue::from_static("application/json"),
-        );
-        headers.insert(
-            "accept",
-            header::HeaderValue::from_static("application/json"),
-        );
-        let client = reqwest::Client::builder()
-            .default_headers(headers)
-            .build()
-            .unwrap();
-        let base_url = base_url.unwrap_or("https://api.openshock.app".to_string());
-        OpenShockAPI {
-            client,
-            base_url,
-            default_key,
+        let mut builder = Self::builder().with_default_api_token(default_key);
+        if let Some(base_url) = base_url {
+            builder = builder.with_base_url(base_url);
         }
+        builder.build().unwrap()
     }
 
     /// Gets user info from the provided API key, the default key from the instance is used if `None` is provided
