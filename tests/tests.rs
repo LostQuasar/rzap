@@ -1,5 +1,5 @@
 use dotenv::dotenv;
-use rzap::{api::{OpenShockAPI, ListShockerSource}, data_type::ControlType};
+use rzap::{api::{ListShockerSource, OpenShockAPI, OpenShockAPIBuilder}, data_type::ControlType};
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 
@@ -9,15 +9,26 @@ fn calculate_hash<T: Hash>(t: &T) -> u64 {
     s.finish()
 }
 
-#[tokio::test]
-async fn get_shockers_test() {
+fn get_test_api() -> OpenShockAPI {
     dotenv().ok();
     let openshock_token = dotenv::var("OPENSHOCK_TOKEN").expect("missing OPENSHOCK_TOKEN");
-    let shocker_test_id = dotenv::var("SHOCKER_TEST_ID").expect("missing SHOCKER_TEST_ID");
-    assert_ne!(openshock_token, "");
-    assert_ne!(shocker_test_id, "");
+    let app_name = env!("CARGO_PKG_NAME");
+    let app_version = env!("CARGO_PKG_VERSION");
 
-    let openshock_api = OpenShockAPI::new(None, openshock_token);
+    assert_ne!(openshock_token, "");
+
+    OpenShockAPIBuilder::new()
+        .with_app(app_name.to_string(), Some(app_version.to_string()))
+        .with_default_api_token(openshock_token)
+        .build()
+        .unwrap()
+}
+
+#[tokio::test]
+async fn get_shockers_test() {
+    let openshock_api = get_test_api();
+    let shocker_test_id = dotenv::var("SHOCKER_TEST_ID").expect("missing SHOCKER_TEST_ID");
+    assert_ne!(shocker_test_id, "");
 
     let result = openshock_api.get_shockers(ListShockerSource::Own, None).await;
     assert_eq!(
@@ -28,13 +39,10 @@ async fn get_shockers_test() {
 
 #[tokio::test]
 async fn post_control_test() {
-    dotenv().ok();
-    let openshock_token = dotenv::var("OPENSHOCK_TOKEN").expect("missing OPENSHOCK_TOKEN");
+    let openshock_api = get_test_api();
     let shocker_test_id = dotenv::var("SHOCKER_TEST_ID").expect("missing SHOCKER_TEST_ID");
-    assert_ne!(openshock_token, "");
     assert_ne!(shocker_test_id, "");
 
-    let openshock_api = OpenShockAPI::new(None, openshock_token);
     let result = openshock_api
         .post_control(shocker_test_id, ControlType::Sound, 1, 300, None)
         .await;
@@ -43,14 +51,11 @@ async fn post_control_test() {
 
 #[tokio::test]
 async fn get_user_info_test() {
-    dotenv().ok();
+    let openshock_api = get_test_api();
     let user_test_id = dotenv::var("USER_TEST_ID").expect("missing USER_TEST_ID");
-    let openshock_token = dotenv::var("OPENSHOCK_TOKEN").expect("missing OPENSHOCK_TOKEN");
     assert_ne!(user_test_id, "");
-    assert_ne!(openshock_token, "");
 
-    let openshock_api = OpenShockAPI::new(None, openshock_token);
-    let result = openshock_api.get_user_info(None).await;
+    let result: Result<rzap::data_type::SelfResponse, rzap::error::Error> = openshock_api.get_user_info(None).await;
     assert_eq!(
         calculate_hash(&result.unwrap().id),
         calculate_hash(&user_test_id)

@@ -19,11 +19,19 @@ tokio = { version = "1.21.2", features = ["macros", "rt-multi-thread"] }
 A simple request to retrieve the API key user's id
 
 ```rs
-dotenv().ok();
-let user_test_id = dotenv::var("USER_TEST_ID").expect("missing USER_TEST_ID");
-let openshock_token = dotenv::var("OPENSHOCK_TOKEN").expect("missing OPENSHOCK_TOKEN");
+    dotenv().ok();
+    let openshock_token = dotenv::var("OPENSHOCK_TOKEN").expect("missing OPENSHOCK_TOKEN");
+    let app_name = env!("CARGO_PKG_NAME");
+    let app_version = env!("CARGO_PKG_VERSION");
 
-let openshock_api = OpenShockAPI::new(None, openshock_token);
-println!(openshock_api.get_user_info(None).await.unwrap().id);
+    assert_ne!(openshock_token, "");
+
+    openshock_api = OpenShockAPIBuilder::new()
+        .with_app(app_name.to_string(), Some(app_version.to_string()))
+        .with_default_api_token(openshock_token)
+        .build()
+        .unwrap();
+    
+    println!(openshock_api.get_user_info(None).await.unwrap().id);
 ```
 
