@@ -1,5 +1,5 @@
 use dotenv::dotenv;
-use rzap::{api::{ListShockerSource, OpenShockAPI, OpenShockAPIBuilder}, data_type::ControlType};
+use rzap::{api::{ListShockerSource, OpenShockAPI},api_builder::OpenShockAPIBuilder, data_type::ControlType};
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 
