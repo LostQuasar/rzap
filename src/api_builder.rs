@@ -27,7 +27,8 @@ impl OpenShockAPIBuilder {
 
     /// set the API token to use
     ///
-    /// this must be provided
+    /// this must be provided 
+    // We should be checking this before allowing a sucessful build of the openshock api?
     pub fn with_default_api_token(mut self, default_api_token: String) -> Self {
         self.default_key = Some(default_api_token);
         self

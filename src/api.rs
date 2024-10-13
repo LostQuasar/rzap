@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use strum_macros::EnumString;
 
 /// All methods contain an `Option<String>` to provide an alternate api key to use if it differs from the default 
-/// Should they? probably not there gotta be a better way to do this.
+// Should they? probably not there gotta be a better way to do this.
 pub struct OpenShockAPI {
     pub client: reqwest::Client,
     pub base_url: String,
