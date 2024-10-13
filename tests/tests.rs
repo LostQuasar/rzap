@@ -1,5 +1,5 @@
 use dotenv::dotenv;
-use rzap::{api::{ListShockerSource, OpenShockAPI},api_builder::OpenShockAPIBuilder, data_type::ControlType};
+use rzap::{api::{ListShockerSource, OpenShockAPI},api_builder::OpenShockAPIBuilder, data_type::{ControlType, SelfResponse}, error::Error};
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 
@@ -32,7 +32,7 @@ async fn get_shockers_test() {
 
     let result = openshock_api.get_shockers(ListShockerSource::Own, None).await;
     assert_eq!(
-        calculate_hash(&result.unwrap()[0].shockers[0].id),
+        calculate_hash(&result.unwrap().unwrap()[0].shockers[0].id),
         calculate_hash(&shocker_test_id)
     );
 }
@@ -46,7 +46,7 @@ async fn post_control_test() {
     let result = openshock_api
         .post_control(shocker_test_id, ControlType::Sound, 1, 300, None)
         .await;
-    assert_eq!(&result.unwrap(), &"Successfully sent control messages");
+    assert_eq!(&result.unwrap().unwrap(), &"Successfully sent control messages");
 }
 
 #[tokio::test]
@@ -55,9 +55,9 @@ async fn get_user_info_test() {
     let user_test_id = dotenv::var("USER_TEST_ID").expect("missing USER_TEST_ID");
     assert_ne!(user_test_id, "");
 
-    let result: Result<rzap::data_type::SelfResponse, rzap::error::Error> = openshock_api.get_user_info(None).await;
+    let result: Result<Option<SelfResponse>, Error> = openshock_api.get_user_info(None).await;
     assert_eq!(
-        calculate_hash(&result.unwrap().id),
+        calculate_hash(&result.unwrap().unwrap().id),
         calculate_hash(&user_test_id)
     );
 }

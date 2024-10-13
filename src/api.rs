@@ -27,16 +27,16 @@ impl OpenShockAPI {
     }
 
     /// Create a new instance of the api interface with a default key and the base_url, because OpenShock can be self hosted `base_url` can be any url without the leading `/` if `None` is provided the default of <https://api.shocklink.net> is used.
-    pub fn new(base_url: Option<String>, default_key: String) -> Self {
+    pub fn new(base_url: Option<String>, default_key: String) -> Result<Self, Error> {
         let mut builder = Self::builder().with_default_api_token(default_key);
         if let Some(base_url) = base_url {
             builder = builder.with_base_url(base_url);
         }
-        builder.build().unwrap()
+        builder.build()
     }
 
     /// Gets user info from the provided API key, the default key from the instance is used if `None` is provided
-    pub async fn get_user_info(&self, api_key: Option<String>) -> Result<SelfResponse, Error> {
+    pub async fn get_user_info(&self, api_key: Option<String>) -> Result<Option<SelfResponse>, Error> {
         let resp = self
             .client
             .get(format!("{}/1/users/self", self.base_url))
@@ -45,10 +45,11 @@ impl OpenShockAPI {
                 api_key.unwrap_or(self.default_key.clone()),
             )
             .send()
-            .await?;
+            .await?
+            .error_for_status()?;
         let self_base_response: BaseResponse<SelfResponse> =
             serde_json::from_str(resp.text().await?.as_str())?;
-        Ok(self_base_response.data.unwrap())
+        Ok(self_base_response.data)
     }
 
     /// Gets a list of shockers that the user has access to from either their own shockers or ones shared with them
@@ -56,7 +57,7 @@ impl OpenShockAPI {
         &self,
         source: ListShockerSource,
         api_key: Option<String>,
-    ) -> Result<Vec<ListShockersResponse>, Error> {
+    ) -> Result<Option<Vec<ListShockersResponse>>, Error> {
         let resp = self
             .client
             .get(format!("{}/1/shockers/{:?}", self.base_url, source))
@@ -65,10 +66,11 @@ impl OpenShockAPI {
                 api_key.unwrap_or(self.default_key.clone()),
             )
             .send()
-            .await?;
+            .await?
+            .error_for_status()?;
         let list_shockers_response: BaseResponse<Vec<ListShockersResponse>> =
             serde_json::from_str(resp.text().await?.as_str())?;
-        Ok(list_shockers_response.data.unwrap())
+        Ok(list_shockers_response.data)
     }
 
     ///Sends a control request to the api and returns the response message which should be "Successfully sent control messages" exactly if it was successful
@@ -79,7 +81,7 @@ impl OpenShockAPI {
         intensity: u8,
         duration: u16,
         api_key: Option<String>,
-    ) -> Result<String, Error> {
+    ) -> Result<Option<String>, Error> {
         match intensity {
             1..=100 => {}
             _ => {
@@ -114,9 +116,10 @@ impl OpenShockAPI {
                 api_key.unwrap_or(self.default_key.clone()),
             )
             .send()
-            .await?;
+            .await?
+            .error_for_status()?;
         let base_response: BaseResponse<String> =
             serde_json::from_str(resp.text().await?.as_str())?;
-        Ok(base_response.message.unwrap())
+        Ok(base_response.message)
     }
 }
