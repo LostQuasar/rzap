@@ -24,7 +24,7 @@ pub struct ShockerResponse {
     pub model: ShockerModel,
 }
 
-#[derive(EnumString, Serialize, Deserialize, Debug)]
+#[derive(EnumString, Serialize, Deserialize, Debug, Clone, Copy, Eq, PartialEq)]
 pub enum ShockerModel {
     CaiXianlin,
     PetTrainer,
@@ -38,7 +38,7 @@ pub struct BaseResponse<T> {
     pub data: Option<T>,
 }
 
-#[derive(EnumString, Serialize, Deserialize, Debug)]
+#[derive(EnumString, Serialize, Deserialize, Debug, Clone, Copy, Eq, PartialEq)]
 pub enum ControlType {
     Stop,
     Shock,
@@ -78,7 +78,7 @@ pub struct SelfResponse {
     pub rank: RankType,
 }
 
-#[derive(EnumString, Serialize, Deserialize, Debug)]
+#[derive(EnumString, Serialize, Deserialize, Debug, Clone, Copy, Eq, PartialEq)]
 pub enum RankType {
     User,
     Support,
